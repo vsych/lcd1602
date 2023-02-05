@@ -1,6 +1,7 @@
 STM32 F103 + I2C LCD1602
 
 | PCF8574T | LCD |
+| ---      | --- |
 | P0       | RS - data/instruction 1/0 |
 | P1       | RW - read/write 1/0 |
 | P2       | EN - enable 1 |
