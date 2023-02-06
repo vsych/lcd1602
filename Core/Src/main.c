@@ -44,6 +44,8 @@ I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN PV */
 
+uint16_t lcd_addr;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,8 +91,13 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  HAL_Delay(100);
+  lcd_set_addr(I2C_LCD_WRITE1);
   lcd_init();
-  lcd_send_string("Victor Sych");
+  lcd_send_string("LCD1");
+  lcd_set_addr(I2C_LCD_WRITE2);
+  lcd_init();
+  lcd_send_string("LCD2");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,7 +113,7 @@ int main(void)
 	lcd_send_string("1234567890");
 	HAL_Delay(5000);
 	lcd_clear();
-	lcd_send_string("Hello World");
+	lcd_send_string("LCD2");
   }
   /* USER CODE END 3 */
 }
@@ -214,7 +221,6 @@ static void MX_GPIO_Init(void)
 
 void lcd_send_inst(char cmd)
 {
-	lcd_check_busy();
 	uint8_t data_t[4];
 	char data_u = cmd & 0b11110000;
 	data_t[0] = data_u | 0b00001100;  //BL=1, EN=1
@@ -222,7 +228,8 @@ void lcd_send_inst(char cmd)
 	char data_l = (cmd & 0b00001111) << 4;
 	data_t[2] = data_l | 0b00001100;  //BL=1, EN=1
 	data_t[3] = data_l | 0b00001000;  //BL=1, EN=0
-	HAL_I2C_Master_Transmit (&hi2c1, I2C_LCD_WRITE, data_t, 4, 100);
+	HAL_I2C_Master_Transmit(&hi2c1, lcd_addr, data_t, 4, 100);
+	lcd_check_busy();
 }
 
 void lcd_send_data (char data)
@@ -234,7 +241,8 @@ void lcd_send_data (char data)
 	char data_l = (data & 0b00001111) << 4;
 	data_t[2] = data_l | 0b00001101;  //BL=1, EN=1, RS=1
 	data_t[3] = data_l | 0b00001001;  //BL=1, EN=0, RS=1
-	HAL_I2C_Master_Transmit (&hi2c1, I2C_LCD_WRITE, data_t, 4, 100);
+	HAL_I2C_Master_Transmit(&hi2c1, lcd_addr, data_t, 4, 100);
+	lcd_check_busy();
 }
 
 uint8_t lcd_check_busy(void)
@@ -250,7 +258,7 @@ void lcd_init(void)
 	lcd_send_inst(0b00100000); // Init - 00 1 DL 0000; DL 8bit mode = 1, 4 bit mode = 0
 	lcd_send_inst(0b00101000); // Init - 00 1 DL N F 00; N 2lines = 1; F fond pixel count
 	lcd_clear();
-	lcd_send_inst(0b00000110); // Set Cursos - 00000 1 I/D S; I/D - Inc/Dec 1/0; S - Shift/No Shift 1/0
+	lcd_send_inst(0b00000110); // Set Cursor - 00000 1 I/D S; I/D - Inc/Dec 1/0; S - Shift/No Shift 1/0
 	lcd_send_inst(0b00001100); // Set display - 0000 1 D C B; D - Display on/off 1/0; C - Cursor on/off 1/0; B - Blinking on/off 1/0
 }
 
@@ -262,12 +270,17 @@ void lcd_send_string(char *str)
 void lcd_clear(void)
 {
 	lcd_send_inst(0b00000001); // Clear display - no params
-	HAL_Delay(5);
+	HAL_Delay(2);
 }
 
 void lcd_set_cursor(char row, char col)
 {
 	lcd_send_inst(col | (row > 0 ? 0xC0 : 0x80));
+}
+
+void lcd_set_addr(uint16_t addr)
+{
+	lcd_addr = addr;
 }
 
 /* USER CODE END 4 */

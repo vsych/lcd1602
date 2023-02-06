@@ -42,8 +42,11 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
 
-#define I2C_LCD_WRITE 0x4E
-#define I2C_LCD_READ 0x4F
+#define I2C_LCD_WRITE1 0x4E
+#define I2C_LCD_READ1 0x4F
+
+#define I2C_LCD_WRITE2 0x4C
+#define I2C_LCD_READ2 0x4D
 
 /* USER CODE END EC */
 
@@ -71,6 +74,7 @@ void lcd_init(void);
 void lcd_send_string(char *str);
 void lcd_clear(void);
 void lcd_set_cursor(char row, char col);
+void lcd_set_addr(uint16_t addr);
 
 /* USER CODE END Private defines */
 
