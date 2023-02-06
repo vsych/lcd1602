@@ -18,4 +18,4 @@ https://www.sparkfun.com/datasheets/LCD/HD44780.pdf
 
 
 ![i2c_breadboard](Docs/i2c_breadboard.jpg)
-![i2c_lcd1602](Docs/i2c_lcd1602.png)
+![i2c_lcd1602](Docs/i2c2lcd1602.png)
